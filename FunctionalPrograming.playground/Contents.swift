@@ -173,3 +173,19 @@ print(filterSum(a1, 3))
 
 // 18
 print(solution2(a1, 3))
+
+//MARK: - Async Result
+
+func f(_ nums: [Int]) -> Int {
+    sleep(1)
+    let sum = nums.reduce(0, +)
+    return sum
+}
+
+func af(_ nums: [Int], _ result: @escaping (Int) -> Void) {
+    DispatchQueue.main.async {
+        sleep(1)
+        let sum = nums.reduce(0, +)
+        result(sum)
+    }
+}
