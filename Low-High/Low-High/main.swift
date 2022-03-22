@@ -16,30 +16,203 @@
 
 import Foundation
 
-let answer = Int(arc4random() % 100) + 1
-var count = 0
+// let answer = Int(arc4random() % 100) + 1
+// var count = 0    // 이부분에서 사이드 이펙트 생김
+//
+// while true {
+//
+//     let userInput = readLine()
+//
+//     guard let unwrappedInput = userInput, let inputNumber = Int(unwrappedInput) else {
+//         print("Wrong")
+//         continue
+//     }
+//
+//     if inputNumber == answer {
+//         print("Correct! : \(count)")
+//         break
+//     }
+//
+//     if inputNumber > answer {
+//         print("High")
+//     }
+//
+//     if inputNumber < answer {
+//         print("Low")
+//     }
+//
+//     count += 1
+// }
 
-while true {
+/* 첫번째 */
 
-    let userInput = readLine()
+// let answer = Int(arc4random() % 100) + 1
+// let answer = 50
+//
+// func inputAndCheck() -> Bool {
+//     let userInput = readLine()
+//
+//     guard let unwrappedInput = userInput, let inputNumber = Int(unwrappedInput) else {
+//         print("Wrong")
+//         return true
+//     }
+//
+//     if inputNumber == answer {
+//         return false
+//     }
+//
+//     if inputNumber > answer {
+//         print("High")
+//     }
+//
+//     if inputNumber < answer {
+//         print("Low")
+//     }
+//
+//     return true
+// }
+//
+// func countingLoop(_ needCountinue: () -> Bool) {
+//     var count = 0
+//     while true {
+//         if !needCountinue() { break }
+//         count += 1
+//     }
+//     print("Correct! : \(count)")
+// }
+//
+// countingLoop(inputAndCheck0)
 
-    guard let unwrappedInput = userInput, let inputNumber = Int(unwrappedInput) else {
-        print("Wrong")
-        continue
-    }
+/* 두번째 */
 
-    if inputNumber == answer {
-        print("Correct! : \(count)")
-        break
-    }
+// let answer = 50
+//
+// func inputAndCheck() -> Bool {
+//     let userInput = readLine()
+//
+//     guard let unwrappedInput = userInput, let inputNumber = Int(unwrappedInput) else {
+//         print("Wrong")
+//         return true
+//     }
+//
+//     if inputNumber == answer {
+//         return false
+//     }
+//
+//     if inputNumber > answer {
+//         print("High")
+//     }
+//
+//     if inputNumber < answer {
+//         print("Low")
+//     }
+//
+//     return true
+// }
+//
+// func corrected(_ count: Int) -> Void {
+//     print("Correct! : \(count)")
+// }
+//
+// func countingLoop(_ needCountinue: @escaping () -> Bool, _ finished: (Int) -> Void) {
+//
+//     func counter(_ c: Int) -> Int {
+//         if !needCountinue() { return c }
+//         return counter(c + 1)
+//     }
+//
+//     finished(counter(0))
+// }
+//
+// countingLoop(inputAndCheck, corrected)
 
-    if inputNumber > answer {
-        print("High")
-    }
+/* 세번째 */
 
-    if inputNumber < answer {
-        print("Low")
-    }
+// let answer = 50
+//
+// enum Result: String {
+//     case wrong = "Wrong"
+//     case correct = "Correct!"
+//     case high = "High"
+//     case low = "Low"
+// }
+//
+// func inputAndCheck() -> Bool {
+//     return printResult(evaluateInput())
+// }
+//
+// func evaluateInput() -> Result {
+//     guard let InputNumber = Int(readLine() ?? "") else { return .wrong }
+//     if InputNumber > answer { return .high}
+//     if InputNumber < answer { return .low }
+//     return .correct
+// }
+//
+// func printResult( _ r: Result) -> Bool {
+//     if case .correct = r { return false }
+//     print(r.rawValue)
+//     return true
+// }
+//
+// func corrected(_ count: Int) -> Void {
+//     print("Correct! : \(count)")
+// }
+//
+// func countingLoop(_ needCountinue: @escaping () -> Bool, _ finished: (Int) -> Void) {
+//
+//     func counter(_ c: Int) -> Int {
+//         if !needCountinue() { return c }
+//         return counter(c + 1)
+//     }
+//
+//     finished(counter(0))
+// }
+//
+// countingLoop(inputAndCheck, corrected)
 
-    count += 1
+/* 네번째 */
+
+enum Result: String {
+    case wrong = "Wrong"
+    case correct = "Correct!"
+    case high = "High"
+    case low = "Low"
 }
+
+func generateAnswer(_ min: Int, _ max: Int) -> Int {
+    return Int(arc4random()) % (max - min) + min
+}
+
+func inputAndCheck(_ answer: Int) -> () -> Bool {
+    return { printResult(evaluateInput(answer)) }
+}
+
+func evaluateInput(_ answer: Int) -> Result {
+    guard let InputNumber = Int(readLine() ?? "") else { return .wrong }
+    if InputNumber > answer { return .high}
+    if InputNumber < answer { return .low }
+    return .correct
+}
+
+func printResult( _ r: Result) -> Bool {
+    if case .correct = r { return false }
+    print(r.rawValue)
+    return true
+}
+
+func corrected(_ count: Int) -> Void {
+    print("Correct! : \(count)")
+}
+
+func countingLoop(_ needCountinue: @escaping () -> Bool, _ finished: (Int) -> Void) {
+    
+    func counter(_ c: Int) -> Int {
+        if !needCountinue() { return c }
+        return counter(c + 1)
+    }
+    
+    finished(counter(0))
+}
+
+countingLoop(inputAndCheck(generateAnswer(1, 100)), corrected)
+
