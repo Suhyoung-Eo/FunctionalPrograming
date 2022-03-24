@@ -83,14 +83,17 @@ struct Weather: Codable {
 
 /* 첫번째 */
 
-func getData(_ url: URL, completion: (Data) -> Void) {
-    if let data = try? Data(contentsOf: url) {
-        completion(data)
+func getData(_ url: URL, completion: @escaping (Data) -> Void) {
+    // 비동기 처리로 동시에 수행 될 수 있도록 함
+    DispatchQueue.global(qos: .default).async {
+        if let data = try? Data(contentsOf: url) {
+            completion(data)
+        }
     }
 }
 
 // 지역 검색 -> [Location]
-func getLocation(_ query: String, completion: ([Location]) -> Void) {
+func getLocation(_ query: String, completion: @escaping ([Location]) -> Void) {
     let url = URL(string: "https://www.metaweather.com/api/location/search?query=\(query)")!
     getData(url) { data in
         if let location = try? JSONDecoder().decode([Location].self, from: data) {
@@ -100,7 +103,7 @@ func getLocation(_ query: String, completion: ([Location]) -> Void) {
 }
 
 // Location -> woeid -> [Weather]
-func getWeather(_ woeid: Int, completion: ([Weather]) -> Void) {
+func getWeather(_ woeid: Int, completion: @escaping ([Weather]) -> Void) {
     let url = URL(string: "https://www.metaweather.com/api/location/\(woeid)")!
     getData(url) { data in
         if let weatherInfo = try? JSONDecoder().decode(WeatherInfo.self, from: data) {
@@ -123,14 +126,16 @@ func printWeather(_ weather: Weather) {
         print(forecast)
 }
 
-getLocation("york") { locations in
+getLocation("san") { locations in
     locations.forEach { location in
-        print(location.title)
         getWeather(location.woeid) { weathers in
+            print(location.title)
             weathers.forEach { weather in
                 printWeather(weather)
             }
+            print("")
         }
-        print("")
     }
 }
+
+RunLoop.main.run() //비동기 된 함수 결과값이 올때까지 실행을 끝내지 않고 기다리게 하는 역할
