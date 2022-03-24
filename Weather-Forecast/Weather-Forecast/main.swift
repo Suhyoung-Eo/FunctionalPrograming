@@ -41,37 +41,96 @@ struct Weather: Codable {
     let predictability: Float
 }
 
-let query = "seoul"
-let locQueryUrl = URL(string: "https://www.metaweather.com/api/location/search?query=\(query)")!
+// 정보취득 순서
+// 지역 검색 -> [Location]
+// Location -> woeid -> [Weather]
+// Weather -> print
 
-if let locData = try? Data(contentsOf: locQueryUrl) {
-    if let locations = try? JSONDecoder().decode([Location].self, from: locData) {
+// let query = "seoul"
+// let locQueryUrl = URL(string: "https://www.metaweather.com/api/location/search?query=\(query)")!
+//
+// if let locData = try? Data(contentsOf: locQueryUrl) {
+//     if let locations = try? JSONDecoder().decode([Location].self, from: locData) {
+//
+//         for location in locations {
+//             print("[\(location.title)]")
+//
+//             let woeid = location.woeid
+//             let weatherUrl = URL(string: "https://www.metaweather.com/api/location/\(woeid)")!
+//
+//             if let weatherData = try? Data(contentsOf: weatherUrl) {
+//                 if let weatherInfo = try? JSONDecoder().decode(WeatherInfo.self, from: weatherData) {
+//
+//                     let weathers = weatherInfo.consolidated_weather
+//                     for weather in weathers {
+//                         let state = weather.weather_state_name.padding(toLength: 15,
+//                                                                        withPad: " ",
+//                                                                        startingAt: 0)
+//                         let forecast = String(format: "%@: %@ %2.2f°C ~ %2.2f°C",
+//                                               weather.applicable_date,
+//                                               state,
+//                                               weather.max_temp,
+//                                               weather.min_temp)
+//                         print(forecast)
+//                     }
+//                 }
+//             }
+//
+//             print("")
+//         }
+//     }
+// }
 
-        for location in locations {
-            print("[\(location.title)]")
+/* 첫번째 */
 
-            let woeid = location.woeid
-            let weatherUrl = URL(string: "https://www.metaweather.com/api/location/\(woeid)")!
+func getData(_ url: URL, completion: (Data) -> Void) {
+    if let data = try? Data(contentsOf: url) {
+        completion(data)
+    }
+}
 
-            if let weatherData = try? Data(contentsOf: weatherUrl) {
-                if let weatherInfo = try? JSONDecoder().decode(WeatherInfo.self, from: weatherData) {
-
-                    let weathers = weatherInfo.consolidated_weather
-                    for weather in weathers {
-                        let state = weather.weather_state_name.padding(toLength: 15,
-                                                                       withPad: " ",
-                                                                       startingAt: 0)
-                        let forecast = String(format: "%@: %@ %2.2f°C ~ %2.2f°C",
-                                              weather.applicable_date,
-                                              state,
-                                              weather.max_temp,
-                                              weather.min_temp)
-                        print(forecast)
-                    }
-                }
-            }
-
-            print("")
+// 지역 검색 -> [Location]
+func getLocation(_ query: String, completion: ([Location]) -> Void) {
+    let url = URL(string: "https://www.metaweather.com/api/location/search?query=\(query)")!
+    getData(url) { data in
+        if let location = try? JSONDecoder().decode([Location].self, from: data) {
+            completion(location)
         }
+    }
+}
+
+// Location -> woeid -> [Weather]
+func getWeather(_ woeid: Int, completion: ([Weather]) -> Void) {
+    let url = URL(string: "https://www.metaweather.com/api/location/\(woeid)")!
+    getData(url) { data in
+        if let weatherInfo = try? JSONDecoder().decode(WeatherInfo.self, from: data) {
+            completion(weatherInfo.consolidated_weather)
+        }
+    }
+}
+
+// Weather -> print
+func printWeather(_ weather: Weather) {
+    
+        let state = weather.weather_state_name.padding(toLength: 15,
+                                                       withPad: " ",
+                                                       startingAt: 0)
+        let forecast = String(format: "%@: %@ %2.2f°C ~ %2.2f°C",
+                              weather.applicable_date,
+                              state,
+                              weather.max_temp,
+                              weather.min_temp)
+        print(forecast)
+}
+
+getLocation("york") { locations in
+    locations.forEach { location in
+        print(location.title)
+        getWeather(location.woeid) { weathers in
+            weathers.forEach { weather in
+                printWeather(weather)
+            }
+        }
+        print("")
     }
 }
