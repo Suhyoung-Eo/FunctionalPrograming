@@ -76,39 +76,41 @@ func consoleOutput(_ output: Output) {
     }
 }
 
-func operation(_ state: State) -> State {
-    let input = consoleInput()
-    switch input {
-    case .moneyInput(let m):
-        let money = state.money + m
-        consoleOutput(.displayMoney(money))
-        return State(money: money)
-        
-    case .productSelect(let p):
-        if state.money < p.rawValue {
-            consoleOutput(.shortMoneyError)
-            return state
+func operation(_ input: @escaping () -> Input, _ output: @escaping (Output) -> ()) -> (State) -> State {
+    return { state in
+        let input = consoleInput()
+        switch input {
+        case .moneyInput(let m):
+            let money = state.money + m
+            output(.displayMoney(money))
+            return State(money: money)
+            
+        case .productSelect(let p):
+            if state.money < p.rawValue {
+                output(.shortMoneyError)
+                return state
+            }
+            output(.productOut(p))
+            let money = state.money - p.rawValue
+            output(.displayMoney(money))
+            return State(money: money)
+            
+        case .reset:
+            output(.change(state.money))
+            output(.displayMoney(0))
+            return State(money: 0)
+            
+        case .none:
+            return State(money: state.money)
         }
-        consoleOutput(.productOut(p))
-        let money = state.money - p.rawValue
-        consoleOutput(.displayMoney(money))
-        return State(money: money)
-        
-    case .reset:
-        consoleOutput(.change(state.money))
-        consoleOutput(.displayMoney(0))
-        return State(money: 0)
-        
-    case .none:
-        return State(money: state.money)
     }
 }
 
-func machineLoop(_ f: (State) -> State) {
+func machineLoop(_ f: @escaping (State) -> State) {
     func loop(_ s: State) {
         loop(f(s))
     }
     loop(State(money: 0))
 }
 
-machineLoop(operation)
+machineLoop(operation(consoleInput, consoleOutput))
