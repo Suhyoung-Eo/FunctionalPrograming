@@ -39,7 +39,6 @@ class ViewController: UIViewController {
     }
     
     // MARK: - UI
-    var state = State.initial() // 해당 부분 사이드 이펙트 유발
     
     @IBOutlet weak var displayMoney: UILabel!
     
@@ -77,8 +76,13 @@ class ViewController: UIViewController {
     
     //MARK: - Logic
     
-    func handleProcess(_ command: String) {
-        state = operation(uiInput(command), uiOutput)(state)
+    lazy var handleProcess = processHandler(State.initial())
+    
+    func processHandler(_ initState: State) -> (String) -> Void {
+        var state = initState   // memoiozation(힘수 안에 변수를 가둬서 사이드 이펙트 없앰, 함수형 프로그램 활용)
+        return { command in
+            state = self.operation(self.uiInput(command), self.uiOutput)(state)
+        }
     }
     
     func uiInput(_ command: String) -> () -> Input {
