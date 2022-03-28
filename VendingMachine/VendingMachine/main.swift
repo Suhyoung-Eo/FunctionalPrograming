@@ -78,7 +78,7 @@ func consoleOutput(_ output: Output) {
 
 func operation(_ input: @escaping () -> Input, _ output: @escaping (Output) -> ()) -> (State) -> State {
     return { state in
-        let input = consoleInput()
+        let input = input()
         switch input {
         case .moneyInput(let m):
             let money = state.money + m
