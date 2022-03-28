@@ -39,7 +39,7 @@ class ViewController: UIViewController {
     }
     
     // MARK: - UI
-    var state = State.initial()
+    var state = State.initial() // 해당 부분 사이드 이펙트 유발
     
     @IBOutlet weak var displayMoney: UILabel!
     
@@ -48,34 +48,38 @@ class ViewController: UIViewController {
     @IBOutlet weak var textInfo: UILabel!
     
     @IBAction func money100(_ sender: Any) {
-        state = operation(uiInput("100"), uiOutput)(state)
+        handleProcess("100")
     }
     
     @IBAction func money500(_ sender: Any) {
-        state = operation(uiInput("500"), uiOutput)(state)
+        handleProcess("500")
     }
     
     @IBAction func money1000(_ sender: Any) {
-        state = operation(uiInput("1000"), uiOutput)(state)
+        handleProcess("1000")
     }
     
     @IBAction func selectCola(_ sender: Any) {
-        state = operation(uiInput("cola"), uiOutput)(state)
+        handleProcess("cola")
     }
     
     @IBAction func selectCider(_ sender: Any) {
-        state = operation(uiInput("cider"), uiOutput)(state)
+        handleProcess("cider")
     }
     
     @IBAction func selectFanta(_ sender: Any) {
-        state = operation(uiInput("fanta"), uiOutput)(state)
+        handleProcess("fanta")
     }
     
     @IBAction func reset(_ sender: Any) {
-        state = operation(uiInput("reset"), uiOutput)(state)
+        handleProcess("reset")
     }
     
     //MARK: - Logic
+    
+    func handleProcess(_ command: String) {
+        state = operation(uiInput(command), uiOutput)(state)
+    }
     
     func uiInput(_ command: String) -> () -> Input {
         return {
